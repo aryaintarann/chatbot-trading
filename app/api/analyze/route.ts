@@ -6,8 +6,8 @@ import { buildSystemPrompt } from '@/lib/signal/prompt'
 import { parseSignalFromResponse } from '@/lib/signal/parser'
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
-const PRIMARY_MODEL = 'deepseek/deepseek-v4-flash:free'
-const FALLBACK_MODEL = process.env.OPENROUTER_FALLBACK_MODEL ?? 'google/gemma-3-27b-it:free'
+const PRIMARY_MODEL = process.env.OPENROUTER_PRIMARY_MODEL ?? 'google/gemma-4-31b-it:free'
+const FALLBACK_MODEL = process.env.OPENROUTER_FALLBACK_MODEL ?? 'moonshotai/kimi-k2.6:free'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getServiceClient(): any {
@@ -108,13 +108,25 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  let aiResponse = await callOpenRouter(PRIMARY_MODEL)
-  if (aiResponse.status === 429) {
-    aiResponse = await callOpenRouter(FALLBACK_MODEL)
+  const MODEL_CHAIN = [
+    PRIMARY_MODEL,
+    FALLBACK_MODEL,
+    'nvidia/nemotron-3-super-120b-a12b:free',
+  ].filter((m, i, arr) => arr.indexOf(m) === i) // deduplicate
+
+  let aiResponse: Response | null = null
+  for (const model of MODEL_CHAIN) {
+    const res = await callOpenRouter(model)
+    if (res.ok) { aiResponse = res; break }
+    const errBody = await res.text().catch(() => '')
+    console.warn(`[analyze] ${model} → ${res.status}: ${errBody.slice(0, 120)}`)
   }
 
-  if (!aiResponse.ok || !aiResponse.body) {
-    return NextResponse.json({ error: 'AI tidak tersedia saat ini' }, { status: 503 })
+  if (!aiResponse || !aiResponse.body) {
+    return NextResponse.json(
+      { error: 'Semua model AI tidak tersedia saat ini. Coba lagi dalam beberapa menit.' },
+      { status: 503 }
+    )
   }
 
   const m15 = analysis.timeframes.find(t => t.timeframe === 'M15')
