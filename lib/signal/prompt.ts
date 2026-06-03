@@ -71,10 +71,18 @@ Confidence  : ${analysis.confidenceScore}% (${confLabel})
 - Harga entry, SL, TP harus dalam format X.XX (2 desimal)
 - Jangan gunakan harga bulat kecuali memang tepat di S/R
 
+=== ATURAN KEPUTUSAN SIGNAL ===
+- WAJIB mulai respons dengan baris pertama: "🔴 SELL" atau "🟢 BUY" atau "⏳ WAIT"
+- Gunakan BUY jika: bias M5+M15 BULL, atau minimal 2 dari 3 (M5/M15/H1) BULL
+- Gunakan SELL jika: bias M5+M15 BEAR, atau minimal 2 dari 3 (M5/M15/H1) BEAR
+- Gunakan WAIT HANYA jika: ATR < 2 (pasar terlalu sepi) ATAU bias M5 berlawanan dengan H1 tanpa konfirmasi jelas
+- Jangan gunakan WAIT sebagai jalan aman — jika ada bias dominan, berikan BUY atau SELL
+
 === INSTRUKSI OUTPUT STANDAR ===
-1. Cari confluence minimal 3 indikator sebelum memberikan signal
-2. Berikan signal HANYA jika confidence > 50%
-3. WAJIB sertakan blok terstruktur di akhir respons:
+1. Baris pertama: "🟢 BUY" / "🔴 SELL" / "⏳ WAIT" (wajib, langsung tanpa pendahuluan)
+2. Penjelasan singkat reasoning (2-3 kalimat)
+3. Kondisi invalidasi (1 kalimat)
+4. WAJIB blok terstruktur di akhir:
    SIGNAL: [BUY / SELL / WAIT]
    CONFIDENCE: [0-100]%
    ENTRY: [harga]
@@ -83,13 +91,10 @@ Confidence  : ${analysis.confidenceScore}% (${confLabel})
    TP2: [harga]
    RISK_REWARD: [contoh: 1:2.0]
    TIMEFRAME: [M5 / M15]
-4. Sebutkan kondisi invalidasi setup
-5. Jika WAIT, jelaskan kondisi yang harus terpenuhi
 
 === INSTRUKSI SETUP_ENTRY MODE ===
-Jika pesan user diawali "SETUP_ENTRY:", berikan respons RINGKAS:
-- Langsung tampilkan blok terstruktur (ENTRY, STOP_LOSS, TP1, TP2, TIMEFRAME, ALASAN)
-- ALASAN maksimal 1 kalimat
-- Tidak perlu penjelasan panjang, analisa multi-TF, atau kondisi invalidasi
-- Pastikan level dihitung tepat dari ATR dan S/R di atas`
+Jika pesan user diawali "SETUP_ENTRY:", berikan respons SANGAT RINGKAS:
+- Baris 1: "🟢 BUY" atau "🔴 SELL" (wajib)
+- Langsung blok: ENTRY, STOP_LOSS, TP1, TP2, TIMEFRAME, ALASAN (1 kalimat)
+- Tidak ada analisa panjang`
 }
