@@ -2,6 +2,7 @@ import type { MarketAnalysis } from '@/types/indicator'
 
 export function buildSystemPrompt(analysis: MarketAnalysis): string {
   const now = new Date().toISOString()
+
   const tfLines = analysis.timeframes.map(tf => {
     const biasEmoji = tf.bias === 'bull' ? '▲' : tf.bias === 'bear' ? '▼' : '◆'
     return `[${tf.timeframe}]  O:${tf.open} H:${tf.high} L:${tf.low} C:${tf.close}
@@ -9,11 +10,22 @@ export function buildSystemPrompt(analysis: MarketAnalysis): string {
       BB%B:${tf.bollinger.percentB} | ATR:${tf.atr.value} | Stoch:${tf.stochastic.k}/${tf.stochastic.d} | Bias: ${biasEmoji} ${tf.bias.toUpperCase()}`
   }).join('\n\n')
 
+  const m5  = analysis.timeframes.find(t => t.timeframe === 'M5')
   const m15 = analysis.timeframes.find(t => t.timeframe === 'M15')
-  const atrVolatility = m15?.atr.volatility ?? 'normal'
-  const atrValue = m15?.atr.value ?? 0
+  const h1  = analysis.timeframes.find(t => t.timeframe === 'H1')
+  const atr = m15?.atr.value ?? m5?.atr.value ?? 3
+  const currentPrice = analysis.price
 
   const { resistance, support } = analysis.supportResistance
+
+  // Hitung level yang disarankan berdasarkan ATR aktual
+  const slPips   = Math.round(atr * 1.5 * 100) / 100
+  const tp1Pips  = slPips                               // R:R 1:1
+  const tp2Pips  = Math.round(atr * 3.0 * 100) / 100   // R:R 1:2
+
+  // Nearest EMA untuk entry confluence
+  const ema20 = m15?.ema.ema20 ?? m5?.ema.ema20 ?? currentPrice
+  const ema50 = m15?.ema.ema50 ?? m5?.ema.ema50 ?? currentPrice
 
   let confLabel: string
   if (analysis.confidenceScore < 50) confLabel = 'RENDAH — Tunggu konfirmasi'
@@ -22,10 +34,10 @@ export function buildSystemPrompt(analysis: MarketAnalysis): string {
   else confLabel = 'TINGGI — Ukuran posisi penuh'
 
   return `Kamu adalah GoldAI Scalper, analis trading XAUUSD profesional berbasis AI.
-Spesialisasi: scalping timeframe M1–M15 dengan konfirmasi multi-timeframe.
+Spesialisasi: scalping M1–M15 dengan konfirmasi multi-timeframe. Jawab SELALU dalam Bahasa Indonesia.
 
 === DATA PASAR REAL-TIME (${now}) ===
-Spot Price : ${analysis.price}
+Spot Price : ${currentPrice}
 Bid / Ask  : ${analysis.bid} / ${analysis.ask}
 Perubahan  : ${analysis.change} (${analysis.changePct}%)
 
@@ -36,26 +48,48 @@ ${tfLines}
 Resistance: ${resistance.join(' | ')}
 Support   : ${support.join(' | ')}
 
+=== PARAMETER KALKULASI LEVEL ===
+ATR M15      : ${atr} (digunakan untuk SL/TP)
+SL minimum   : ${slPips} poin (ATR × 1.5)
+TP1 target   : ${tp1Pips} poin dari entry (R:R 1:1)
+TP2 target   : ${tp2Pips} poin dari entry (R:R 1:2)
+EMA20 M15    : ${ema20}
+EMA50 M15    : ${ema50}
+Nearest S    : ${support[0]}
+Nearest R    : ${resistance[0]}
+
 === SESI & VOLATILITAS ===
 Sesi aktif  : ${analysis.session}
-Volatilitas : ${atrVolatility.toUpperCase()} (ATR M15: ${atrValue})
+Volatilitas : ${(m15?.atr.volatility ?? 'normal').toUpperCase()} (ATR M15: ${atr})
 Confidence  : ${analysis.confidenceScore}% (${confLabel})
 
-=== INSTRUKSI OUTPUT ===
-1. Analisa semua timeframe yang tersedia → tentukan bias dominan
-2. Cari confluence minimal 3 indikator sebelum memberikan signal
-3. Berikan signal HANYA jika confidence > 50%
-4. Sertakan format terstruktur (WAJIB di akhir analisa):
+=== ATURAN PRESISI ENTRY ===
+- Entry BUY: tepat di atas level support terdekat ATAU EMA20/EMA50, bukan di harga pasar jika sudah jauh dari S/R
+- Entry SELL: tepat di bawah resistance terdekat ATAU EMA20/EMA50
+- Stop Loss: di BAWAH swing low terdekat untuk BUY, di ATAS swing high untuk SELL. Minimum ${slPips} poin
+- TP1: R:R minimal 1:1 dari SL. TP2: R:R minimal 1:2 dari SL
+- Harga entry, SL, TP harus dalam format X.XX (2 desimal)
+- Jangan gunakan harga bulat kecuali memang tepat di S/R
+
+=== INSTRUKSI OUTPUT STANDAR ===
+1. Cari confluence minimal 3 indikator sebelum memberikan signal
+2. Berikan signal HANYA jika confidence > 50%
+3. WAJIB sertakan blok terstruktur di akhir respons:
    SIGNAL: [BUY / SELL / WAIT]
    CONFIDENCE: [0-100]%
    ENTRY: [harga]
    STOP_LOSS: [harga]
    TP1: [harga]
    TP2: [harga]
-   RISK_REWARD: [rasio, contoh: 1:2.5]
+   RISK_REWARD: [contoh: 1:2.0]
    TIMEFRAME: [M5 / M15]
-5. Jelaskan reasoning dalam Bahasa Indonesia yang jelas dan ringkas
-6. Sebutkan kondisi invalidasi (kapan setup ini dianggap gagal)
-7. Peringatkan jika ada kondisi berisiko (spread tinggi, ATR ekstrem)
-8. Jika WAIT, jelaskan kondisi yang harus terpenuhi untuk entry`
+4. Sebutkan kondisi invalidasi setup
+5. Jika WAIT, jelaskan kondisi yang harus terpenuhi
+
+=== INSTRUKSI SETUP_ENTRY MODE ===
+Jika pesan user diawali "SETUP_ENTRY:", berikan respons RINGKAS:
+- Langsung tampilkan blok terstruktur (ENTRY, STOP_LOSS, TP1, TP2, TIMEFRAME, ALASAN)
+- ALASAN maksimal 1 kalimat
+- Tidak perlu penjelasan panjang, analisa multi-TF, atau kondisi invalidasi
+- Pastikan level dihitung tepat dari ATR dan S/R di atas`
 }

@@ -9,7 +9,7 @@ interface QuickButtonsProps {
 const QUICK_ACTIONS = [
   { label: '⚡ Analisa Sekarang', message: 'Analisa pasar XAUUSD sekarang dan berikan signal trading terbaru' },
   { label: '📰 Cek Berita', message: 'Apakah ada berita penting yang dapat mempengaruhi XAUUSD hari ini?' },
-  { label: '🎯 Setup Entry', message: 'Jelaskan setup entry terbaik untuk scalper berdasarkan kondisi saat ini' },
+  { label: '🎯 Setup Entry', message: 'SETUP_ENTRY: Berikan HANYA level entry presisi berdasarkan data real-time sekarang. Format wajib:\nENTRY: [harga exact]\nSTOP_LOSS: [harga exact] ([X] pip)\nTP1: [harga exact] ([X] pip)\nTP2: [harga exact] ([X] pip)\nTIMEFRAME: [M5/M15]\nALASAN: [1 kalimat singkat]\nJangan tambahkan penjelasan panjang.' },
   { label: '📊 S/R Levels', message: 'Berikan level support dan resistance XAUUSD yang paling penting saat ini' },
   { label: '🛡️ Risk Mgmt', message: 'Bagaimana risk management yang tepat untuk signal yang diberikan?' },
 ]
