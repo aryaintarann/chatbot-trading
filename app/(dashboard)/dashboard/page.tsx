@@ -1,12 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import { DashboardClient } from './DashboardClient'
 
-export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+const PERSONAL_USER_ID = process.env.PERSONAL_USER_ID ?? '00000000-0000-0000-0000-000000000001'
 
-  if (!user) redirect('/login')
+export const dynamic = 'force-dynamic'
 
-  return <DashboardClient userId={user.id} />
+export default function DashboardPage() {
+  return <DashboardClient userId={PERSONAL_USER_ID} />
 }
