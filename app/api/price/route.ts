@@ -16,10 +16,15 @@ export async function GET() {
     return NextResponse.json({ ...priceCache.data, cached: true })
   }
 
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 5000) // 5 detik timeout
+
   try {
     const res = await fetch('https://api.gold-api.com/price/XAU', {
-      next: { revalidate: CACHE_SECONDS },
+      signal: controller.signal,
     })
+
+    clearTimeout(timeout)
 
     if (!res.ok) throw new Error(`gold-api.com responded ${res.status}`)
 
@@ -41,6 +46,8 @@ export async function GET() {
 
     return NextResponse.json(data)
   } catch (err) {
+    clearTimeout(timeout)
+    // Selalu return cache jika ada (stale ok, daripada error)
     if (priceCache) {
       return NextResponse.json({ ...priceCache.data, cached: true, stale: true })
     }

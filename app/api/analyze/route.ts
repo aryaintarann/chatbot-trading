@@ -86,26 +86,36 @@ export async function POST(request: NextRequest) {
   const recentHistory = history.slice(-10)
 
   async function callOpenRouter(model: string): Promise<Response> {
-    return fetch(OPENROUTER_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://goldai-scalper.vercel.app',
-        'X-Title': 'GoldAI Scalper',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 1500,
-        temperature: 0.3,
-        stream: true,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...recentHistory,
-          { role: 'user', content: userMessage },
-        ],
-      }),
-    })
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000) // 15 detik timeout per model
+    try {
+      const res = await fetch(OPENROUTER_URL, {
+        method: 'POST',
+        signal: controller.signal,
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://goldai-scalper.vercel.app',
+          'X-Title': 'GoldAI Scalper',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 1500,
+          temperature: 0.3,
+          stream: true,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...recentHistory,
+            { role: 'user', content: userMessage },
+          ],
+        }),
+      })
+      clearTimeout(timeout)
+      return res
+    } catch (err) {
+      clearTimeout(timeout)
+      throw err
+    }
   }
 
   const MODEL_CHAIN = [
@@ -116,10 +126,14 @@ export async function POST(request: NextRequest) {
 
   let aiResponse: Response | null = null
   for (const model of MODEL_CHAIN) {
-    const res = await callOpenRouter(model)
-    if (res.ok) { aiResponse = res; break }
-    const errBody = await res.text().catch(() => '')
-    console.warn(`[analyze] ${model} → ${res.status}: ${errBody.slice(0, 120)}`)
+    try {
+      const res = await callOpenRouter(model)
+      if (res.ok) { aiResponse = res; break }
+      const errBody = await res.text().catch(() => '')
+      console.warn(`[analyze] ${model} → ${res.status}: ${errBody.slice(0, 120)}`)
+    } catch (err) {
+      console.warn(`[analyze] ${model} → timeout/network error:`, (err as Error).message)
+    }
   }
 
   if (!aiResponse || !aiResponse.body) {

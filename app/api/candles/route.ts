@@ -28,9 +28,18 @@ async function fetchFromYahoo(tf: Timeframe): Promise<Candle[]> {
   const { interval, range } = TF_CONFIG[tf]
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${YAHOO_SYMBOL}?interval=${interval}&range=${range}`
 
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0' },
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8000) // 8 detik timeout
+
+  let res: Response
+  try {
+    res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: controller.signal,
+    })
+  } finally {
+    clearTimeout(timeout)
+  }
 
   if (!res.ok) throw new Error(`Yahoo Finance responded ${res.status}`)
 
