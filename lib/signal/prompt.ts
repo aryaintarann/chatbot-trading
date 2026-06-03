@@ -93,8 +93,19 @@ Confidence  : ${analysis.confidenceScore}% (${confLabel})
    TIMEFRAME: [M5 / M15]
 
 === INSTRUKSI SETUP_ENTRY MODE ===
-Jika pesan user diawali "SETUP_ENTRY:", berikan respons SANGAT RINGKAS:
-- Baris 1: "🟢 BUY" atau "🔴 SELL" (wajib)
-- Langsung blok: ENTRY, STOP_LOSS, TP1, TP2, TIMEFRAME, ALASAN (1 kalimat)
-- Tidak ada analisa panjang`
+Jika pesan user diawali "SETUP_ENTRY:", berikan respons HANYA dalam format ini (tidak ada teks lain):
+
+🟢 BUY  ←  (atau 🔴 SELL, pilih salah satu, WAJIB di baris pertama)
+
+SIGNAL: BUY
+CONFIDENCE: [angka]%
+ENTRY: [harga]
+STOP_LOSS: [harga]
+TP1: [harga]
+TP2: [harga]
+RISK_REWARD: 1:[angka]
+TIMEFRAME: [M5 atau M15]
+ALASAN: [1 kalimat — sebutkan indikator utama yang mendukung]
+
+Tidak ada kalimat lain di luar format di atas.`
 }
