@@ -43,9 +43,11 @@ export function ChatArea({ userId, onSignal }: ChatAreaProps) {
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+    // Kontainer utama — flex column, tinggi diisi parent, tidak meluber
+    <div className="flex flex-col h-full min-h-0 overflow-hidden">
+
+      {/* Area pesan — satu-satunya yang scrollable */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-1">
         {messages.map(msg => (
           <MessageBubble
             key={msg.id}
@@ -63,40 +65,42 @@ export function ChatArea({ userId, onSignal }: ChatAreaProps) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Quick buttons */}
-      <QuickButtons
-        onSend={sendMessage}
-        onRefresh={() => sendMessage('Refresh data dan analisa ulang kondisi XAUUSD terkini')}
-        isLoading={isLoading}
-      />
+      {/* Quick buttons — tinggi tetap, tidak ikut scroll */}
+      <div className="flex-shrink-0 border-t border-[rgba(255,255,255,0.04)]">
+        <QuickButtons
+          onSend={sendMessage}
+          onRefresh={() => sendMessage('Refresh data dan analisa ulang kondisi XAUUSD terkini')}
+          isLoading={isLoading}
+        />
+      </div>
 
-      {/* Input */}
-      <div className="flex items-end gap-3 px-4 py-3 border-t border-[rgba(255,255,255,0.06)]">
+      {/* Input — tinggi tetap di bawah */}
+      <div className="flex-shrink-0 flex items-end gap-2 px-3 py-2 border-t border-[rgba(255,255,255,0.06)] bg-[#080c14]">
         <div className="flex-1 bg-[#111827] border border-[rgba(255,255,255,0.1)] rounded-xl overflow-hidden focus-within:border-[rgba(245,200,66,0.4)] transition-colors">
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Tanya tentang XAUUSD... (Enter untuk kirim)"
+            placeholder="Tanya XAUUSD... (Enter kirim)"
             maxLength={1000}
             rows={1}
-            className="w-full bg-transparent px-4 py-3 text-white placeholder-gray-600 text-sm resize-none focus:outline-none"
-            style={{ maxHeight: '120px' }}
+            className="w-full bg-transparent px-3 py-2.5 text-white placeholder-gray-600 text-sm resize-none focus:outline-none leading-snug"
+            style={{ maxHeight: '96px' }}
           />
         </div>
         <button
           onClick={handleSend}
           disabled={!input.trim() || isLoading}
-          className="bg-[#F5C842] text-black w-10 h-10 rounded-xl flex items-center justify-center hover:bg-[#f0be2e] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+          className="flex-shrink-0 bg-[#F5C842] text-black w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[#f0be2e] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isLoading ? (
-            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
           ) : (
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           )}
         </button>

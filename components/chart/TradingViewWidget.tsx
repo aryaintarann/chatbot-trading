@@ -6,7 +6,8 @@ export function TradingViewWidget() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!containerRef.current) return
+    const container = containerRef.current
+    if (!container) return
 
     const script = document.createElement('script')
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
@@ -31,7 +32,7 @@ export function TradingViewWidget() {
       support_host: 'https://www.tradingview.com',
     })
 
-    containerRef.current.appendChild(script)
+    container.appendChild(script)
 
     return () => {
       if (containerRef.current) {
@@ -41,8 +42,12 @@ export function TradingViewWidget() {
   }, [])
 
   return (
-    <div className="tradingview-widget-container h-full" ref={containerRef}>
-      <div className="tradingview-widget-container__widget h-full"></div>
+    // overflow-hidden wajib — cegah iframe TradingView meluber keluar kontainer
+    <div
+      ref={containerRef}
+      className="tradingview-widget-container w-full h-full overflow-hidden"
+    >
+      <div className="tradingview-widget-container__widget w-full h-full" />
     </div>
   )
 }
