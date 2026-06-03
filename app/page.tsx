@@ -1,65 +1,98 @@
-import Image from "next/image";
+import Link from 'next/link'
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen flex flex-col bg-[#080c14]">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 border-b border-[rgba(245,200,66,0.15)]">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">⚡</span>
+          <span className="font-mono text-[#F5C842] text-xl font-bold">GoldAI</span>
+          <span className="text-gray-400 text-sm">Scalper</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className="flex items-center gap-3">
+          <Link href="/login" className="text-gray-300 hover:text-white text-sm transition-colors">
+            Masuk
+          </Link>
+          <Link
+            href="/register"
+            className="bg-[#F5C842] text-black px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#f0be2e] transition-colors"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Mulai Gratis
+          </Link>
         </div>
-      </main>
-    </div>
-  );
+      </header>
+
+      {/* Hero */}
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24">
+        <div className="inline-flex items-center gap-2 bg-[rgba(245,200,66,0.1)] border border-[rgba(245,200,66,0.3)] rounded-full px-4 py-1.5 mb-8">
+          <span className="w-2 h-2 bg-[#22d3a0] rounded-full animate-pulse"></span>
+          <span className="text-[#F5C842] text-sm font-mono">Live Signal Engine Active</span>
+        </div>
+
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          <span className="text-white">Signal Trading</span>
+          <br />
+          <span className="text-[#F5C842] font-mono">XAUUSD</span>
+          <br />
+          <span className="text-white">Berbasis AI</span>
+        </h1>
+
+        <p className="text-gray-400 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
+          Analisa multi-timeframe M1–D1 secara otomatis. Entry, Stop Loss, dan Take Profit
+          presisi dalam kurang dari 60 detik. Didukung DeepSeek AI.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 mb-16">
+          <Link
+            href="/register"
+            className="bg-[#F5C842] text-black px-8 py-4 rounded-xl text-lg font-bold hover:bg-[#f0be2e] transition-all hover:scale-105"
+          >
+            ⚡ Mulai Analisa Gratis
+          </Link>
+          <Link
+            href="/login"
+            className="border border-[rgba(245,200,66,0.3)] text-[#F5C842] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[rgba(245,200,66,0.05)] transition-colors"
+          >
+            Sudah punya akun
+          </Link>
+        </div>
+
+        {/* Feature cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
+          {[
+            {
+              icon: '📊',
+              title: '6 Timeframe Sekaligus',
+              desc: 'Analisa M1, M5, M15, H1, H4, D1 secara paralel untuk konfirmasi terbaik',
+            },
+            {
+              icon: '🎯',
+              title: 'Entry Presisi',
+              desc: 'Signal BUY/SELL/WAIT dengan level Entry, SL, TP1, TP2 berbasis ATR',
+            },
+            {
+              icon: '🛡️',
+              title: 'Risk Management',
+              desc: 'Confidence score 0-100% dari confluence indikator RSI, EMA, MACD, BB, Stoch',
+            },
+          ].map((f) => (
+            <div
+              key={f.title}
+              className="bg-[#0d1220] border border-[rgba(245,200,66,0.1)] rounded-xl p-6 text-left hover:border-[rgba(245,200,66,0.3)] transition-colors"
+            >
+              <div className="text-3xl mb-3">{f.icon}</div>
+              <h3 className="text-white font-semibold mb-2">{f.title}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="text-center py-6 text-gray-600 text-sm border-t border-[rgba(245,200,66,0.1)]">
+        GoldAI Scalper · XAUUSD Signal Trading · Bukan saran investasi
+      </footer>
+    </main>
+  )
 }
